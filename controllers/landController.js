@@ -104,8 +104,7 @@ module.exports = {
       success: true,
       message: "Data fetched successfully",
       data: {
-        SoilgridsData,
-        climateServData,
+        ...climateServData,
       },
     });
   }),
@@ -121,7 +120,7 @@ module.exports = {
 
     const begintime = getCurrentDate("weather"); // Today's date
     const endtime = getDate30DaysLater("weather"); // Date 30 days from today
-    console.log(begintime, endtime);
+
     const weatherData = await axios.get(
       `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}/2023-10-01/2023-10-10?key=${process.env.WEATHER_API_KEY}&include=days`
     );
