@@ -12,6 +12,7 @@ const globalError = require("./middlewares/errorHandler");
 
 //routes imports
 const userRouter = require("./routers/userRouter");
+const landRouter = require("./routers/landRouter");
 
 const app = express();
 
@@ -26,6 +27,7 @@ connecTotDb();
 
 //Routes
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/land", landRouter);
 
 app.get("/test", async (req, res) => {
   res.status(200).send("Tested Successfully");
