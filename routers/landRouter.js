@@ -1,6 +1,6 @@
 const landRouter = require("express").Router();
 const landController = require("../controllers/landController");
 
-landRouter.get("/data", landController.getLandData);
+landRouter.get("/soilgrids", landController.getSoilgrids);
 
 module.exports = landRouter;

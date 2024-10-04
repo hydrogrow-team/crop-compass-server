@@ -25,17 +25,36 @@ function getDate30DaysLater() {
 
 module.exports = {
   // * @desc get land data from APIs using lat and long
-  // * @route POST /api/v1/land/data
+  // * @route POST /api/v1/land/soilgrids
   // ! @access Public
 
-  getLandData: asyncHandler(async (req, res, next) => {
+  getSoilgrids: asyncHandler(async (req, res, next) => {
+    let { lat, lon } = req.query;
+    lat = parseFloat(lat).toFixed(0);
+    lon = parseFloat(lon).toFixed(0);
+    const Soilgrids = await axios.get(
+      `https://dev-rest.isric.org/soilgrids/v2.0/properties/query?lon=${lon}&lat=${lat}&property=sand&property=cec&property=nitrogen&property=phh2o&property=soc&value=mean&depth=5-15cm`
+    );
+    console.log(Soilgrids.data);
+    //let SoilgridsData = simplifySoilgrids(Soilgrids.data);
+    let SoilgridsData = Soilgrids.data;
+
+    return res.status(201).json({
+      success: true,
+      message: "Data fetched successfully",
+      data: {
+        SoilgridsData,
+      },
+    });
+  }),
+
+  // -------------------------------------------------------------------------------------------------------------------------- //
+  // * @desc get land data from APIs using lat and long
+  // * @route POST /api/v1/land/rainfall
+  // ! @access Public
+  getRainfall: asyncHandler(async (req, res, next) => {
     const { lat, lon } = req.query;
 
-    const Soilgrids = await axios.get(
-      `https://dev-rest.isric.org/soilgrids/v2.0/properties/query?lon=${lon}&lat=${lat}&property=cec&property=nitrogen&property=phh2o&property=soc&value=mean&value=Q0.05&value=Q0.95`
-    );
-    let SoilgridsData = simplifySoilgrids(Soilgrids.data);
-    // ---------------- //
     let geoCoordinates = JSON.stringify(convertToGeo({ lat, lon }));
     const begintime = getCurrentDate(); // Today's date
     const endtime = getDate30DaysLater(); // Date 30 days from today
@@ -77,18 +96,19 @@ module.exports = {
 
     climateServData.total = totalRainfall;
 
-    // const tempsDataReq = await axios.get(
-    //   `https://api.open-meteo.com/v1/forecast?latitude=${lon}&longitude=${lat}&daily=temperature_2m_max&forecast_days=16`
-    // );
-    // Object.fromEntries = (arr) =>
-    //   Object.assign({}, ...Array.from(arr, ([k, v]) => ({ [k]: v })));
+    return res.status(201).json({
+      success: true,
+      message: "Data fetched successfully",
+      data: {
+        SoilgridsData,
+        climateServData,
+      },
+    });
+  }),
 
-    // let tempsData = Object.fromEntries(
-    //   tempsDataReq.data.daily.temperature_2m_max.map((day, index) => {
-    //     return [index, day];
-    //   })
-    // );
-    // console.log(tempsData);
+  // -------------------------------------------------------------------------------------------------------------------------- //
+  getLandData: asyncHandler(async (req, res, next) => {
+    const { lat, lon } = req.query;
 
     return res.status(201).json({
       success: true,
