@@ -1,27 +1,30 @@
 function simplifySoilgrids(data) {
-  // Create a new object to hold the simplified data
-  const simplifiedData = {};
+  const result = {};
 
+  // Iterate through each layer
   data.properties.layers.forEach((layer) => {
-    // Filter the depths based on the specified range
-    const filteredDepths = layer.depths.filter((depth) => {
-      return depth.range.top_depth >= 5 && depth.range.bottom_depth <= 15;
-    });
+    const { name, unit_measure, depths } = layer;
 
-    // If there are filtered depths, store the mean value and unit in the simplifiedData object
-    if (filteredDepths.length > 0) {
-      const meanValue = filteredDepths[0].values.mean; // Assuming you want the mean from the first depth
-      const unit = layer.unit_measure.target_units; // Accessing the unit measure
+    // Iterate through each depth
+    depths.forEach((depth) => {
+      const { label, values } = depth;
 
-      // Use the layer name as the key
-      simplifiedData[layer.name] = {
+      // Create a key for the result object using the layer name and depth label
+      const key = `${name}`;
+
+      // Extract the mean value
+      const meanValue = values.mean;
+
+      // Structure the result
+      result[key] = {
         mean: meanValue,
-        unit: unit,
+        unit: unit_measure.target_units,
+        label: label,
       };
-    }
+    });
   });
 
-  return simplifiedData;
+  return result;
 }
 
 module.exports = simplifySoilgrids;
