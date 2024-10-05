@@ -200,12 +200,12 @@ module.exports = {
     const result = await model.generateContent([
       `reasons to plant ${prediction.data[0][0]} as an agribusiness`,
     ]);
-    console.log(result.response.text());
+
     return res.status(201).json({
       success: true,
       message: "",
       data: {
-        prediction: prediction.data,
+        prediction: prediction.data[0][0],
         description: result.response.text(),
       },
     });
