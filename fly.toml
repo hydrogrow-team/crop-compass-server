@@ -18,7 +18,7 @@ primary_region = 'cdg'
   WEATHER_API_KEY = '7XD6NMGXWYFX7E2X7K46LKW55'
 
 [http_service]
-  internal_port = 8080
+  internal_port = 3300
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true

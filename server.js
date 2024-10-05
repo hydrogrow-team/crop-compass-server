@@ -44,7 +44,7 @@ app.use(globalError);
 // test route to check status
 
 const port = process.env.PORT;
-const server = app.listen(port || 8080, () => {
+const server = app.listen(port || 3300, () => {
   console.log(
     "Server Is Running! \n" +
       `➜ Mode: ${process.env.NODE_ENV} \n` +
