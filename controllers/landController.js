@@ -98,7 +98,7 @@ module.exports = {
 
     // Calculate the average by dividing the total rainfall by the number of days
 
-    climateServData.total = totalRainfall;
+    climateServData.totalRain = totalRainfall * 3;
 
     return res.status(201).json({
       success: true,
@@ -122,8 +122,26 @@ module.exports = {
     const endtime = getDate30DaysLater("weather"); // Date 30 days from today
 
     const weatherData = await axios.get(
-      `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}/2023-10-01/2023-10-10?key=${process.env.WEATHER_API_KEY}&include=days`
+      `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}/${begintime}/${endtime}?key=${process.env.WEATHER_API_KEY}&include=days&unitGroup=metric`
     );
+
+    // Initialize sum variables for temp and humidity
+    let totalTemp = 0;
+    let totalHumidity = 0;
+
+    // Use a single forEach loop to calculate both sums
+    weatherData.data.days.forEach((day) => {
+      totalTemp += day.temp;
+      totalHumidity += day.humidity;
+    });
+
+    // Calculate the averages
+    const avgTemp = totalTemp / weatherData.data.days.length;
+    const avgHumidity = totalHumidity / weatherData.data.days.length;
+
+    // Store the averages in the weatherData object
+    weatherData.data.avgTemp = avgTemp.toFixed(2);
+    weatherData.data.avgHum = avgHumidity.toFixed(2);
 
     return res.status(201).json({
       success: true,
@@ -135,4 +153,61 @@ module.exports = {
   }),
 
   // -------------------------------------------------------------------------------------------------------------------------- //
+
+  // * @desc get land data from APIs using lat and long
+  // * @route POST /api/v1/land/prediction
+  // ! @access Public
+
+  getPrediction: asyncHandler(async (req, res, next) => {
+    const { lat, lon } = req.query;
+
+    const soilgrids = await axios.get(
+      `http://localhost:3300/api/v1/land/soilgrids?lat=${lat}&lon=${lon}`
+    );
+
+    const soilgridsData = soilgrids.data.data;
+
+    const { sand, cec, nitrogen, phh2o, soc } = soilgridsData;
+
+    const rainfall = await axios.get(
+      `http://localhost:3300/api/v1/land/rainfall?lat=${lat}&lon=${lon}`
+    );
+
+    const rainfallData = rainfall.data.data;
+
+    const { totalRain } = rainfallData;
+
+    const weather = await axios.get(
+      `http://localhost:3300/api/v1/land/weather?lat=${lat}&lon=${lon}`
+    );
+
+    const weatherData = weather.data.data;
+
+    const { avgTemp, avgHum } = weatherData;
+
+    const prediction = await axios.get(
+      `http://localhost:5000/predict?N=${
+        nitrogen.mean
+      }&temp=${avgTemp}&hum=${avgHum}&ph=${(phh2o.mean / 10).toFixed(
+        2
+      )}&rainfall=${totalRain}`
+    );
+
+    const { GoogleGenerativeAI } = require("@google/generative-ai");
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent([
+      `reasons to plant ${prediction.data[0][0]} as an agribusiness`,
+    ]);
+    console.log(result.response.text());
+    return res.status(201).json({
+      success: true,
+      message: "",
+      data: {
+        prediction: prediction.data,
+        description: result.response.text(),
+      },
+    });
+  }),
 };
