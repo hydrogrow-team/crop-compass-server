@@ -186,7 +186,7 @@ module.exports = {
     const { avgTemp, avgHum } = weatherData;
 
     const prediction = await axios.get(
-      `http://localhost:5000/predict?N=${
+      `${process.env.AI_RECOMMENDATION_API}/predict?N=${
         nitrogen.mean
       }&temp=${avgTemp}&hum=${avgHum}&ph=${(phh2o.mean / 10).toFixed(
         2
