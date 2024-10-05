@@ -40,7 +40,6 @@ module.exports = {
     let { lat, lon } = req.query;
     lat = parseFloat(lat).toFixed(0);
     lon = parseFloat(lon).toFixed(0);
-    console.log(lat, lon);
 
     const Soilgrids = await axios.get(
       `https://dev-rest.isric.org/soilgrids/v2.0/properties/query?lon=${lon}&lat=${lat}&property=sand&property=cec&property=nitrogen&property=phh2o&property=soc&value=mean&depth=5-15cm`
