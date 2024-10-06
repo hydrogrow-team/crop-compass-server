@@ -206,6 +206,7 @@ module.exports = {
       message: "",
       data: {
         prediction: prediction.data[0][0],
+        percentage: prediction.data[0][1],
         description: result.response.text(),
       },
     });

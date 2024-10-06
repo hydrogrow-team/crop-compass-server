@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, "uploads")));
 const allowedOrigins = "*";
 app.use(cors({ origin: allowedOrigins }));
 // connect to MONGODB
-connecTotDb();
+//connecTotDb();
 
 //Routes
 app.use("/api/v1/user", userRouter);
